@@ -111,6 +111,24 @@ export async function getPostMeta(postId: string, viewerId: string | null) {
   };
 }
 
+export async function getLatestPublished(limit = 6) {
+  return db
+    .select({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      publishedAt: post.publishedAt,
+      authorUsername: user.username,
+      authorName: user.displayName,
+    })
+    .from(post)
+    .innerJoin(user, eq(user.id, post.authorId))
+    .where(eq(post.status, "published"))
+    .orderBy(desc(post.publishedAt))
+    .limit(limit);
+}
+
 export async function getFeed(viewerId: string, opts: { cursor?: string } = {}) {
   const followingRows = await db
     .select({ id: follow.followingId })

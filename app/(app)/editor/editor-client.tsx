@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useCallback, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,18 @@ import {
   deletePostAction,
 } from "./actions";
 import { CoverImageUploader } from "./cover-image-uploader";
+
+function EditorLoading() {
+  const t = useTranslations("editor");
+  return (
+    <div className="text-sm text-muted-foreground">{t("editorLoading")}</div>
+  );
+}
+
+const PlateEditor = dynamic(
+  () => import("@/components/editor/plate-editor").then((m) => m.PlateEditor),
+  { ssr: false, loading: () => <EditorLoading /> },
+);
 
 type EditorPost = {
   id: string;
@@ -43,32 +55,28 @@ export function EditorClient({
   const [slug, setSlug] = useState(post.slug);
   const [excerpt, setExcerpt] = useState(post.excerpt);
   const [tagsText, setTagsText] = useState(initialTags.join(", "));
-  const [content, setContent] = useState<unknown[]>(
-    Array.isArray(post.contentJson) ? (post.contentJson as unknown[]) : [],
-  );
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(
     post.coverImageUrl,
   );
   const [pending, startTransition] = useTransition();
 
-  const PlateEditor = dynamic(
-    () =>
-      import("@/components/editor/plate-editor").then((m) => m.PlateEditor),
-    {
-      ssr: false,
-      loading: () => (
-        <div className="text-muted-foreground">{t("editorLoading")}</div>
-      ),
-    },
-  );
+  const initialContent: unknown[] = Array.isArray(post.contentJson)
+    ? (post.contentJson as unknown[])
+    : [];
+  const contentRef = useRef<unknown[]>(initialContent);
+
+  const handleEditorChange = useCallback((value: unknown[]) => {
+    contentRef.current = value;
+  }, []);
 
   const tagList = tagsText
     .split(",")
-    .map((t) => t.trim())
+    .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, 10);
 
   const onSave = () => {
+    const content = contentRef.current;
     startTransition(async () => {
       const res = await savePostAction({
         postId: post.id,
@@ -90,6 +98,7 @@ export function EditorClient({
   const onPublish = () => {
     if (!title.trim()) return toast.error(t("needTitle"));
     const finalSlug = slug.trim() || slugify(title) || post.id;
+    const content = contentRef.current;
     startTransition(async () => {
       const res = await publishPostAction({
         postId: post.id,
@@ -120,61 +129,90 @@ export function EditorClient({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          {t("statusLabel")}{" "}
+    <div className="space-y-8">
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-xs uppercase tracking-wider text-muted-foreground">
           {post.status === "published" ? t("statusPublished") : t("statusDraft")}
-        </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={onDelete} disabled={pending}>
+        </span>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            disabled={pending}
+          >
             {t("delete")}
           </Button>
-          <Button variant="outline" onClick={onSave} disabled={pending}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onSave}
+            disabled={pending}
+          >
             {pending ? t("saving") : t("save")}
           </Button>
-          <Button onClick={onPublish} disabled={pending}>
+          <Button size="sm" onClick={onPublish} disabled={pending}>
             {post.status === "published" ? t("republish") : t("publish")}
           </Button>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-5">
         <Input
           placeholder={t("titlePlaceholder")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="!h-auto !text-3xl font-semibold !border-0 !shadow-none px-0 focus-visible:ring-0"
+          className="!h-auto !text-4xl font-heading font-medium tracking-tight !border-0 !shadow-none !bg-transparent px-0 focus-visible:ring-0 placeholder:text-muted-foreground/60"
         />
         <CoverImageUploader value={coverImageUrl} onChange={setCoverImageUrl} />
       </div>
 
-      <PlateEditor initialValue={content} onChange={setContent} />
+      <PlateEditor initialValue={initialContent} onChange={handleEditorChange} />
 
-      <div className="grid gap-4 rounded-lg border border-border p-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label htmlFor="slug">{t("slugLabel")}</Label>
-          <Input
-            id="slug"
-            placeholder={slugify(title) || t("slugPlaceholder")}
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-          />
-          <p className="text-xs text-muted-foreground">
-            {t("slugHint", { username, slug: slug || slugify(title) || "..." })}
-          </p>
+      <div className="space-y-5 border-t border-border/60 pt-8">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="slug"
+              className="text-xs uppercase tracking-wider text-muted-foreground"
+            >
+              {t("slugLabel")}
+            </Label>
+            <Input
+              id="slug"
+              placeholder={slugify(title) || t("slugPlaceholder")}
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              {t("slugHint", {
+                username,
+                slug: slug || slugify(title) || "...",
+              })}
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="tags"
+              className="text-xs uppercase tracking-wider text-muted-foreground"
+            >
+              {t("tagsLabel")}
+            </Label>
+            <Input
+              id="tags"
+              placeholder={t("tagsPlaceholder")}
+              value={tagsText}
+              onChange={(e) => setTagsText(e.target.value)}
+            />
+          </div>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="tags">{t("tagsLabel")}</Label>
-          <Input
-            id="tags"
-            placeholder={t("tagsPlaceholder")}
-            value={tagsText}
-            onChange={(e) => setTagsText(e.target.value)}
-          />
-        </div>
-        <div className="sm:col-span-2 space-y-1.5">
-          <Label htmlFor="excerpt">{t("excerptLabel")}</Label>
+          <Label
+            htmlFor="excerpt"
+            className="text-xs uppercase tracking-wider text-muted-foreground"
+          >
+            {t("excerptLabel")}
+          </Label>
           <Textarea
             id="excerpt"
             placeholder={t("excerptPlaceholder")}

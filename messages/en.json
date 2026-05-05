@@ -29,10 +29,28 @@
     "signOut": "Sign out"
   },
   "landing": {
-    "title": "A blog platform for your stories",
+    "title": "A quiet place to write",
     "description": "Anyone can build their own blog, write posts, and connect with readers. Markdown-like simplicity with a Notion-like editing experience.",
-    "ctaSignUp": "Start for free",
-    "ctaFeed": "Browse the feed"
+    "ctaSignUp": "Start writing",
+    "ctaFeed": "Browse posts",
+    "latest": "Latest",
+    "latestEmpty": "Be the first to publish."
+  },
+  "footer": {
+    "tagline": "A quiet blog platform.",
+    "links": {
+      "about": "About",
+      "terms": "Terms",
+      "privacy": "Privacy"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Not found",
+    "notFoundDescription": "The page you're looking for doesn't exist.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "An unexpected error occurred. Please try again.",
+    "tryAgain": "Try again",
+    "goHome": "Back to home"
   },
   "auth": {
     "signInTitle": "Sign in",

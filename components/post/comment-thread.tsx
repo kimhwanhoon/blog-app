@@ -39,7 +39,7 @@ export function CommentThread({
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {currentUserId ? (
         <form
           onSubmit={(e) => {
@@ -63,6 +63,7 @@ export function CommentThread({
             onChange={(e) => setBody(e.target.value)}
             placeholder={t("commentPlaceholder")}
             rows={3}
+            className="resize-none border-border/60 bg-card focus-visible:ring-1"
           />
           <div className="flex justify-end">
             <Button type="submit" size="sm" disabled={pending || !body.trim()}>
@@ -77,26 +78,26 @@ export function CommentThread({
       {comments.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("noComments")}</p>
       ) : (
-        <ul className="space-y-5">
+        <ul className="space-y-7">
           {comments.map((c) => (
             <li key={c.id} className="flex gap-3">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-7 w-7">
                 {c.authorImage ? (
                   <AvatarImage src={c.authorImage} alt={c.authorName ?? ""} />
                 ) : null}
-                <AvatarFallback>
+                <AvatarFallback className="text-xs">
                   {(c.authorName ?? c.authorUsername ?? "?")[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-1">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">
+                <div className="flex items-baseline gap-2 text-xs text-muted-foreground">
+                  <span className="text-sm font-medium text-foreground">
                     {c.authorName ?? `@${c.authorUsername}`}
                   </span>
                   <span>·</span>
                   <span>{formatDate(c.createdAt)}</span>
                 </div>
-                <p className="whitespace-pre-wrap text-sm">{c.body}</p>
+                <p className="whitespace-pre-wrap text-sm leading-6">{c.body}</p>
                 {currentUserId === c.authorId ? (
                   <button
                     onClick={() =>

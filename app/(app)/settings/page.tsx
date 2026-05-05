@@ -15,8 +15,10 @@ export default async function SettingsPage() {
   const t = await getTranslations("settings");
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+    <div className="mx-auto max-w-md space-y-8">
+      <h1 className="font-heading text-3xl font-medium tracking-tight">
+        {t("title")}
+      </h1>
       <SettingsForm
         user={{
           username: u.username ?? "",

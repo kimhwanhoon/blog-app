@@ -9,12 +9,15 @@ export async function Header() {
   const session = await getSession();
   const t = await getTranslations();
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-border bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-30 w-full border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <Link href="/" className="text-base font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="font-heading text-lg tracking-tight"
+        >
           {t("common.appName")}
         </Link>
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1">
           {session ? (
             <>
               <Button asChild variant="ghost" size="sm">

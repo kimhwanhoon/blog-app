@@ -46,11 +46,12 @@ export function PostActions({
   }
 
   return (
-    <div className="flex items-center gap-2 border-y border-border py-3">
+    <div className="flex items-center gap-1 border-y border-border/60 py-2">
       <Button
-        variant={liked ? "default" : "outline"}
+        variant="ghost"
         size="sm"
         disabled={pending}
+        className={liked ? "text-foreground" : "text-muted-foreground"}
         onClick={() => {
           if (!gate()) return;
           startTransition(async () => {
@@ -62,12 +63,13 @@ export function PostActions({
         }}
       >
         <Heart className={`mr-1.5 h-4 w-4 ${liked ? "fill-current" : ""}`} />
-        {t("likeCount", { count: likes })}
+        {likes}
       </Button>
       <Button
-        variant={bookmarked ? "default" : "outline"}
+        variant="ghost"
         size="sm"
         disabled={pending}
+        className={bookmarked ? "text-foreground" : "text-muted-foreground"}
         onClick={() => {
           if (!gate()) return;
           startTransition(async () => {
@@ -81,11 +83,11 @@ export function PostActions({
         <Bookmark
           className={`mr-1.5 h-4 w-4 ${bookmarked ? "fill-current" : ""}`}
         />
-        {t("bookmarkCount", { count: bookmarks })}
+        {bookmarks}
       </Button>
-      <div className="ml-auto flex items-center gap-1.5 text-sm text-muted-foreground">
-        <MessageCircle className="h-4 w-4" />
-        {t("commentCount", { count: commentCount })}
+      <div className="ml-auto flex items-center gap-1.5 px-3 text-xs text-muted-foreground">
+        <MessageCircle className="h-3.5 w-3.5" />
+        {commentCount}
       </div>
     </div>
   );

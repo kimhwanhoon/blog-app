@@ -1,4 +1,5 @@
 import { Header } from "@/components/shared/header";
+import { Footer } from "@/components/shared/footer";
 
 export default function AppLayout({
   children,
@@ -8,7 +9,10 @@ export default function AppLayout({
   return (
     <>
       <Header />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</main>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+        {children}
+      </main>
+      <Footer />
     </>
   );
 }

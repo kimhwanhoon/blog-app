@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { and, desc, eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { Header } from "@/components/shared/header";
-import { Badge } from "@/components/ui/badge";
+import { Footer } from "@/components/shared/footer";
 import { db } from "@/db/client";
 import { post, postTag, tag as tagTable } from "@/db/schema";
 import { getUserByUsername } from "@/db/queries/posts";
@@ -47,39 +47,51 @@ export default async function TagPage(props: {
   return (
     <>
       <Header />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-        <div className="mb-6 flex items-center gap-2">
-          <Link href={`/@${username}`} className="text-sm text-muted-foreground hover:underline">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
+        <div className="mb-10 flex items-baseline gap-2">
+          <Link
+            href={`/@${username}`}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
             @{username}
           </Link>
           <span className="text-muted-foreground">/</span>
-          <Badge variant="secondary">#{t.name}</Badge>
+          <h1 className="font-heading text-2xl font-medium tracking-tight">
+            #{t.name}
+          </h1>
         </div>
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{tr("tag.noPostsForTag")}</p>
+          <p className="py-10 text-sm text-muted-foreground">
+            {tr("tag.noPostsForTag")}
+          </p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border/60 border-t border-border/60">
             {rows.map((p) => (
-              <li key={p.id} className="py-6">
+              <li key={p.id}>
                 <Link
                   href={`/@${username}/${p.slug}`}
-                  className="group block space-y-2"
+                  className="block space-y-2 py-7 transition-colors hover:bg-accent/40 -mx-3 px-3 rounded-md"
                 >
-                  <h2 className="text-xl font-semibold group-hover:underline">
-                    {p.title || tr("common.untitled")}
-                  </h2>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h2 className="font-heading text-xl font-medium leading-snug tracking-tight">
+                      {p.title || tr("common.untitled")}
+                    </h2>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {p.publishedAt ? formatDate(p.publishedAt) : ""}
+                    </span>
+                  </div>
                   {p.excerpt ? (
-                    <p className="text-sm text-muted-foreground line-clamp-2">{p.excerpt}</p>
+                    <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
+                      {p.excerpt}
+                    </p>
                   ) : null}
-                  <p className="text-xs text-muted-foreground">
-                    {p.publishedAt ? formatDate(p.publishedAt) : ""}
-                  </p>
                 </Link>
               </li>
             ))}
           </ul>
         )}
       </main>
+      <Footer />
     </>
   );
 }

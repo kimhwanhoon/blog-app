@@ -50,9 +50,9 @@ export function CoverImageUploader({
 
   if (value) {
     return (
-      <div className="relative overflow-hidden rounded-lg border border-border">
+      <div className="relative overflow-hidden rounded-md border border-border/60">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={value} alt="cover" className="w-full object-cover max-h-64" />
+        <img src={value} alt="cover" className="w-full object-cover max-h-72" />
         <Button
           size="icon"
           variant="secondary"
@@ -67,7 +67,7 @@ export function CoverImageUploader({
   }
 
   return (
-    <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border px-4 py-6 text-sm text-muted-foreground hover:bg-accent">
+    <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed border-border/70 px-4 py-5 text-sm text-muted-foreground transition-colors hover:bg-accent/40 hover:text-foreground">
       {uploading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (

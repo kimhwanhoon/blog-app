@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Header } from "@/components/shared/header";
+import { Footer } from "@/components/shared/footer";
 import { FollowButton } from "@/components/post/follow-button";
 import { getPostsByAuthor, getUserByUsername } from "@/db/queries/posts";
 import { getSession } from "@/lib/session";
@@ -46,10 +47,10 @@ export default async function UserBlogPage(props: {
   return (
     <>
       <Header />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-        <section className="flex items-start justify-between gap-4 border-b border-border pb-6">
-          <div className="flex gap-4">
-            <Avatar className="h-16 w-16">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
+        <section className="flex items-start justify-between gap-6 pb-10">
+          <div className="flex gap-5">
+            <Avatar className="h-14 w-14">
               {author.image ? (
                 <AvatarImage src={author.image} alt={author.displayName ?? username} />
               ) : null}
@@ -57,16 +58,18 @@ export default async function UserBlogPage(props: {
                 {(author.displayName ?? username)[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">
+            <div className="space-y-1.5">
+              <h1 className="font-heading text-3xl font-medium tracking-tight">
                 {author.displayName ?? `@${username}`}
               </h1>
               <p className="text-sm text-muted-foreground">@{username}</p>
               {author.bio ? (
-                <p className="mt-2 max-w-prose text-sm">{author.bio}</p>
+                <p className="max-w-prose pt-1 text-sm leading-6">
+                  {author.bio}
+                </p>
               ) : null}
-              <p className="mt-2 text-xs text-muted-foreground">
-                {t("userBlog.followers", { count: followers })}
+              <p className="pt-2 text-xs text-muted-foreground">
+                {t("userBlog.followers", { count: followers })} · {posts.length} posts
               </p>
             </div>
           </div>
@@ -78,37 +81,44 @@ export default async function UserBlogPage(props: {
           ) : null}
         </section>
 
-        <section className="divide-y divide-border">
+        <section className="border-t border-border/60">
           {posts.length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">
+            <p className="py-16 text-center text-sm text-muted-foreground">
               {t("userBlog.noPostsYet")}
             </p>
           ) : (
-            posts.map((p) => (
-              <article key={p.id} className="py-6">
-                <Link
-                  href={`/@${username}/${p.slug}`}
-                  className="group block space-y-2"
-                >
-                  <h2 className="text-xl font-semibold group-hover:underline">
-                    {p.title || t("common.untitled")}
-                  </h2>
-                  {p.excerpt ? (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {p.excerpt}
+            <ul className="divide-y divide-border/60">
+              {posts.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/@${username}/${p.slug}`}
+                    className="block space-y-2 py-7 transition-colors hover:bg-accent/40 -mx-3 px-3 rounded-md"
+                  >
+                    <div className="flex items-baseline justify-between gap-4">
+                      <h2 className="font-heading text-xl font-medium leading-snug tracking-tight">
+                        {p.title || t("common.untitled")}
+                      </h2>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {p.publishedAt ? formatDate(p.publishedAt) : ""}
+                      </span>
+                    </div>
+                    {p.excerpt ? (
+                      <p className="line-clamp-2 text-sm leading-6 text-muted-foreground">
+                        {p.excerpt}
+                      </p>
+                    ) : null}
+                    <p className="text-xs text-muted-foreground">
+                      {t("dashboard.metaLikes", { count: p.likeCount })} ·{" "}
+                      {t("dashboard.metaComments", { count: p.commentCount })}
                     </p>
-                  ) : null}
-                  <p className="text-xs text-muted-foreground">
-                    {p.publishedAt ? formatDate(p.publishedAt) : ""} ·{" "}
-                    {t("dashboard.metaLikes", { count: p.likeCount })} ·{" "}
-                    {t("dashboard.metaComments", { count: p.commentCount })}
-                  </p>
-                </Link>
-              </article>
-            ))
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </section>
       </main>
+      <Footer />
     </>
   );
 }
