@@ -1,7 +1,20 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      { source: "/@:username", destination: "/u/:username" },
+      { source: "/@:username/:path*", destination: "/u/:username/:path*" },
+    ];
+  },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "**" },
+    ],
+  },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
